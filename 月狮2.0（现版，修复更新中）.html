@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>月狮 - OC群像创作</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            neon: {
+              pink: '#ff2a95',
+              blue: '#2a95ff',
+              green: '#2affa9',
+              yellow: '#e6ff2a',
+              purple: '#a92aff'
+            },
+            cyber: {
+              dark: '#0a0e17',
+              darker: '#05070a',
+              light: '#161b2c',
+              accent: '#2d3756'
+            }
+          },
+          fontFamily: {
+            cyber: ['Orbitron', 'sans-serif'],
+            chinese: ['Noto Sans SC', 'sans-serif']
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 3s ease-in-out infinite alternate',
+            'float': 'float 6s ease-in-out infinite'
+          },
+          keyframes: {
+            glow: {
+              '0%': { textShadow: '0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff2a95, 0 0 20px #ff2a95' },
+              '100%': { textShadow: '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #2a95ff, 0 0 40px #2a95ff' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-shadow-neon {
+        text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 10px rgba(42,149,255,0.5), 0 0 15px rgba(255,42,149,0.5);
+      }
+      .bg-grid {
+        background-image: 
+          linear-gradient(rgba(45, 55, 86, 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(45, 55, 86, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .clip-path-slant {
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+      }
+      .mask-gradient {
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+      }
+      .backdrop-blur-cyber {
+        backdrop-filter: blur(8px);
+        background-color: rgba(10, 14, 23, 0.7);
+      }
+      .border-glow {
+        box-shadow: 0 0 5px rgba(42,149,255,0.5), 0 0 10px rgba(42,149,255,0.3);
+      }
+    }
+  </style>
+  
+  <!-- 引入外部字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-cyber-dark text-gray-200 font-chinese overflow-x-hidden">
+  <!-- 导航栏 -->
+  <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 backdrop-blur-cyber border-b border-cyber-accent">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span class="text-neon-pink font-cyber text-xl font-bold">月狮</span>
+        <span class="h-4 w-px bg-neon-blue"></span>
+        <span class="text-sm tracking-widest">CYBER CHRONICLES</span>
+      </div>
+      
+      <!-- 桌面导航 -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="#world" class="hover:text-neon-pink transition-colors duration-300">世界观</a>
+        <a href="#characters" class="hover:text-neon-blue transition-colors duration-300">角色群像</a>
+        <a href="#faction" class="hover:text-neon-green transition-colors duration-300">阵营势力</a>
+        <a href="#gallery" class="hover:text-neon-yellow transition-colors duration-300">艺术画廊</a>
+      </div>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-gray-200 focus:outline-none">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-cyber-darker border-t border-cyber-accent">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="#world" class="py-2 hover:text-neon-pink transition-colors duration-300">世界观</a>
+        <a href="#characters" class="py-2 hover:text-neon-blue transition-colors duration-300">角色群像</a>
+        <a href="#faction" class="py-2 hover:text-neon-green transition-colors duration-300">阵营势力</a>
+        <a href="#gallery" class="py-2 hover:text-neon-yellow transition-colors duration-300">艺术画廊</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 英雄区 -->
+  <header class="relative min-h-screen flex items-center justify-center overflow-hidden bg-grid">
+    <!-- 背景视频/图片 -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-cyber-darker/70 z-10"></div>
+      <img src="C:\Users\39473\Desktop\月狮\势力设定\微信图片_20251119233533_129_136.jpg" alt="未来城市废墟" class="w-full h-full object-cover mask-gradient">
+    </div>
+    
+    <!-- 内容 -->
+    <div class="container mx-auto px-4 z-10 text-center">
+      <h1 class="text-[clamp(3rem,10vw,6rem)] font-cyber font-bold mb-4 animate-glow">
+        <span class="text-white">月</span><span class="text-neon-pink">狮</span>
+      </h1>
+      
+      <!-- 队徽位置 -->
+      <div class="w-64 h-64 md:w-64 md:h-64 mx-auto my-8 relative animate-float">
+        <div class="absolute inset-0 bg-neon-blue/20 rounded-full blur-lg"></div>
+        <div class="w-full h-full bg-cyber-light border-2 border-neon-blue rounded-full flex items-center justify-center border-glow">
+         <img src="C:\Users\39473\Desktop\月狮\人设图\微信图片_20251119225255_262_37.png" alt="月狮队徽" class="w-full h-full object-contain p-2">
+        </div>
+      </div>
+      
+      <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-8 text-shadow-neon">
+        当世界分崩离析，七盏孤灯将照亮黑暗
+      </p>
+      
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#world" class="px-8 py-3 bg-neon-pink hover:bg-neon-pink/80 text-white font-bold rounded transition-all duration-300 transform hover:scale-105">
+          探索世界
+        </a>
+        <a href="#characters" class="px-8 py-3 bg-transparent border-2 border-neon-blue hover:bg-neon-blue/20 text-white font-bold rounded transition-all duration-300">
+          认识角色
+        </a>
+      </div>
+    </div>
+    
+    <!-- 滚动指示器 -->
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+      <a href="#world" class="flex flex-col items-center text-gray-400 hover:text-white transition-colors">
+        <span class="mb-2 text-sm">向下滚动</span>
+        <i class="fa fa-chevron-down"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- 世界观部分 -->
+  <section id="world" class="py-20 bg-cyber-darker relative overflow-hidden">
+    <div class="absolute inset-0 bg-grid opacity-30"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="flex flex-col md:flex-row gap-12 items-center">
+        <div class="md:w-1/2">
+          <h2 class="text-4xl md:text-5xl font-cyber font-bold mb-6">
+            <span class="text-neon-blue">#</span> 世界背景
+          </h2>
+          
+          <div class="space-y-6 text-lg">
+            <p>
+              一百年前，"天灾"像道永不愈合的伤疤，刻在人类文明的残垣上——全球二十七处地壳突然崩裂，暗绿色的腐蚀性粘液顺着裂缝涌出，第一批蚀骨虫像潮水般吞没了澳兰、卢内等沿海城市。
+            </p>
+            
+            <p>
+              数年过去，地心生物的入侵早已成了日常：岩甲兽的岩浆能把整座防御塔熔成铁水，飞镰虫的集群遮天蔽日，连腐殖菌都在悄无声息地改造着地表，让土壤变成只适合它们生存的强酸环境。
+            </p>
+            
+            <p>
+              人类退守在十二座"特级据点城市"里，天穹城的磁悬浮堡垒悬在云端，利索尔的自由堡垒藏在落基山脉深处，炎夏带着中亚国家在青藏高原筑起"钢铁长城"，用觉醒者的元素能力构建能量护盾。
+            </p>
+          </div>
+        </div>
+        
+        <div class="md:w-1/2">
+          <div class="relative">
+            <div class="absolute -inset-4 bg-gradient-to-r from-neon-pink/20 to-neon-blue/20 rounded-lg blur-xl"></div>
+            <div class="bg-cyber-light p-6 rounded-lg border border-cyber-accent relative">
+              <h3 class="text-2xl font-cyber font-bold mb-4 text-neon-green">觉醒者体系</h3>
+              
+              <div class="mb-6">
+                <canvas id="awakenerChart" width="400" height="300"></canvas>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-cyber-dark p-4 rounded border border-neon-pink/30">
+                  <h4 class="font-cyber font-bold text-neon-pink mb-2">强化系</h4>
+                  <p class="text-sm">身体能力强化，可徒手捏碎岩甲兽外壳</p>
+                </div>
+                
+                <div class="bg-cyber-dark p-4 rounded border border-neon-blue/30">
+                  <h4 class="font-cyber font-bold text-neon-blue mb-2">元素系</h4>
+                  <p class="text-sm">操控雷电、火焰等自然元素</p>
+                </div>
+                
+                <div class="bg-cyber-dark p-4 rounded border border-neon-green/30">
+                  <h4 class="font-cyber font-bold text-neon-green mb-2">精神系</h4>
+                  <p class="text-sm">干扰精神控制，读取思维</p>
+                </div>
+                
+                <div class="bg-cyber-dark p-4 rounded border border-neon-yellow/30">
+                  <h4 class="font-cyber font-bold text-neon-yellow mb-2">特殊系</h4>
+                  <p class="text-sm">拥有接近"概念神"的特殊能力</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 角色群像部分 -->
+  <section id="characters" class="py-20 bg-cyber-dark relative">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl md:text-5xl font-cyber font-bold mb-12 text-center">
+        <span class="text-neon-pink">#</span> 里世界七宗长
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 角色卡片 1 -->
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant">
+            <img src="C:\Users\39473\Desktop\月狮\人设图\8a99dcc2054f088cbd199ed5cc07445c.jpg" alt="郁烆" class="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <h3 class="text-2xl font-bold mb-2">郁烆</h3>
+              <p class="text-neon-blue font-cyber">特殊系 | S级  “奇点”“天眼”</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">毫无疑问的天之骄女，外号“般若”，因其作战常佩戴赤般若傩面而得名。又有外号“阿努比斯”，源于古埃及神话中的死神，毫无疑问昭示着她像鬼魅一般来去无踪，像死神一般能轻易夺取他人性命。表世界身份为龙卫上校，龙卫精英组月狮的首席作战员，里世界身份为七宗长之首“摩诃罗”。郁烆身高足有186cm，体重65kg，宽肩窄腰。由于常年作战和经常锻炼，她肌肉线条健美，有六块腹肌。头发被染成了扎眼的蓝色，鬓发在脑后扎成小辫，会经常佩戴墨镜，一方面是为了耍帅，另一方面是为了隐藏第二异能“天眼”。其长相俊美，雌雄莫辨，又因身材高挑，经常被误认为男生，因此很受女子欢迎。郁烆本人也是姛性恋，但经常拒绝主动贴上来的女孩，因此有传言说她是性冷淡。武器为一个叫“帝江”的立方体，配合其第一异能“奇点”可以幻化出不同的武器，但最主要用的是雁翎刀和泵动式霰弹枪。此外，作为嫡脉道法家族的少主，郁烆还会符箓咒法和雷法，会将其与热武器结合以创造出更大的威力。她是天才，是疯子，是无法无天的反英雄，是无可比拟的强者。只有家人和爱人才能为这个疯子套上枷锁。其异能奇点能够制造宇宙大爆炸，黑洞，恒星，甚至可以制造新的宇宙和银河系等，而天眼能够跨维度视角观察世界，例如可以从四维到十二维的视角观察三维世界，且本异能可以选择性开启。</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">七宗长：摩诃罗/龙卫：般若</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-shield text-neon-pink"></i>
+                <i class="fa fa-sword text-neon-blue"></i>
+                <i class="fa fa-heart text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 角色卡片 2 -->
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant">
+            <img src="C:\Users\39473\Desktop\月狮\人设图\6129aef70ff8f26407e550dc5bcccf82.jpg"alt="暮云" class="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <h3 class="text-2xl font-bold mb-2">暮云</h3>
+              <p class="text-neon-green font-cyber">元素系 | S级   “飓风”“唯心主义”</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">27岁。黑发有微自然卷，剑眉紫瞳，皮肤白皙，身高168，着装一般是机能风。虽看着高冷，但性格闷骚，吐槽役，对于所有人都是无差别吐槽。异能是元素系的“飓风“，以及神秘的唯心灵能。同时暮云还是武器大师，手边一切物品都能成为她的武器，包括陌椛。
+和龙卫三上将之一的黎瑗是青梅青梅，本来是想在分析部苟，但因为唯心灵能的特殊性所以被黎瑗连哄带骗扔到月狮当队长。某隐世宗门的小少主，除异能外还擅长奇门遁甲，星象观测(什么神棍)，除了做饭其他技能几乎是一点就通，但有自知之明绝不会踏入厨房半步。
+超级低精力人，belike活动五分钟充电两小时执行完任务之后一般是单独行动，如果黎瑗不忙会在她身边“充电”，变成小孩时对她的分离焦虑尤其严重。</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">七宗长之首：风神/龙卫：月狮小队队长</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-eye text-neon-pink"></i>
+                <i class="fa fa-brain text-neon-blue"></i>
+                <i class="fa fa-lock text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 角色卡片 3 -->
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant">
+            <img src="C:\Users\39473\Desktop\月狮\人设图\c0ef1eb36e0d3f4ca30d9ab281947c37.jpg"alt="濯枝" class="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <h3 class="text-2xl font-bold mb-2">濯枝</h3>
+              <p class="text-neon-yellow font-cyber">元素系 | S级   “玉清尘”</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">清雨玉骨露踏青，谁言天霖濯青枝。褐发青眸，柳眉杏眼，端的是一位古画中的美人儿。而在里世界，七宗长“青玉”往往是落定乾坤之人。作为月狮指挥员的濯枝，也是团队中最重要的稳定剂。前文明的濯枝是一个国画画家，颇负盛名。意外觉醒异能后，濯枝自告奋勇加入了龙卫，起初也是作为军医，可后来展现出了极强的观察力和统筹指挥能力，在战斗中也有多次不俗的表现，因此被任命为指挥员。其真实身份是著名仙门玉陵派最后的传人，武器为传宗之宝玉骨青鸾伞。后经过龙卫改装，除了原有的伞骨镖，另加了伞面的防御功能，以及伞柄中的青剑。整伞可作为泵动式霰弹枪使用（郁烆的主意），异能名为“玉清尘”，能立刻结晶造玉，化无形为有形，可制造兵器护甲，亦可拔地而起城。</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400"> 七宗长：青玉/龙卫：月狮小队指挥员</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-bolt text-neon-pink"></i>
+                <i class="fa fa-bomb text-neon-blue"></i>
+                <i class="fa fa-bullseye text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 角色卡片 4 -->
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant">
+            <img src="https://picsum.photos/id/197/600/800" alt="角色4" class="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <h3 class="text-2xl font-bold mb-2">代号：妖狐</h3>
+              <p class="text-neon-purple font-cyber">特殊系 | ???</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">"规则是用来打破的，尤其是我定的规则。"</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">战术策划</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-mask text-neon-pink"></i>
+                <i class="fa fa-dice text-neon-blue"></i>
+                <i class="fa fa-magic text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 更多角色卡片... -->
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant bg-cyber-accent flex items-center justify-center h-96">
+            <div class="text-center p-6">
+              <i class="fa fa-user-secret text-6xl text-neon-blue/50 mb-4"></i>
+              <h3 class="text-2xl font-bold mb-2">代号：？？？</h3>
+              <p class="text-gray-400 font-cyber">??? | ???</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">"秘密是最有价值的货币。"</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">身份未知</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-question text-neon-pink"></i>
+                <i class="fa fa-question text-neon-blue"></i>
+                <i class="fa fa-question text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="group">
+          <div class="relative overflow-hidden rounded-lg clip-path-slant bg-cyber-accent flex items-center justify-center h-96">
+            <div class="text-center p-6">
+              <i class="fa fa-user-secret text-6xl text-neon-pink/50 mb-4"></i>
+              <h3 class="text-2xl font-bold mb-2">代号：？？？</h3>
+              <p class="text-gray-400 font-cyber">??? | ???</p>
+            </div>
+          </div>
+          <div class="bg-cyber-light p-6 rounded-b-lg border-x border-b border-cyber-accent">
+            <p class="mb-4">"等待合适的时机。"</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">身份未知</span>
+              <div class="flex space-x-2">
+                <i class="fa fa-question text-neon-pink"></i>
+                <i class="fa fa-question text-neon-blue"></i>
+                <i class="fa fa-question text-neon-green"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 阵营势力部分 -->
+  <section id="faction" class="py-20 bg-cyber-darker relative overflow-hidden">
+    <div class="absolute inset-0 bg-grid opacity-30"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+      <h2 class="text-4xl md:text-5xl font-cyber font-bold mb-12 text-center">
+        <span class="text-neon-green">#</span> 阵营势力
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- 炎夏阵营 -->
+        <div class="bg-cyber-light rounded-lg overflow-hidden border border-cyber-accent relative">
+          <div class="absolute top-0 right-0 bg-neon-red text-white text-xs font-bold px-3 py-1">
+            人类联盟
+          </div>
+          
+          <div class="h-48 bg-cyber-dark flex items-center justify-center">
+            <img src="C:\Users\39473\Desktop\月狮\势力设定\微信图片_20251119233512_128_136.jpg" alt="炎夏阵营" class="w-full h-full object-cover">
+          </div>
+          
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-2xl font-bold">炎夏 - 钢铁长城</h3>
+              <div class="flex items-center">
+                <span class="text-neon-green font-cyber mr-2">500M+</span>
+                <span class="text-sm text-gray-400">人口</span>
+              </div>
+            </div>
+            
+            <p class="mb-6">
+              炎夏带着中亚国家在青藏高原筑起"钢铁长城"，用觉醒者的元素能力构建能量护盾。他们坚信集体力量，组建了"龙卫"部队，将觉醒者编入集体作战单元。
+            </p>
+            
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="text-center">
+                <div class="text-neon-pink font-cyber text-xl font-bold">12K</div>
+                <div class="text-sm">觉醒者</div>
+              </div>
+              <div class="text-center">
+                <div class="text-neon-blue font-cyber text-xl font-bold">5</div>
+                <div class="text-sm">特级据点</div>
+              </div>
+              <div class="text-center">
+                <div class="text-neon-green font-cyber text-xl font-bold">98%</div>
+                <div class="text-sm">防御率</div>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 bg-neon-green rounded-full mr-2"></span>
+                <span class="text-sm">友好</span>
+              </div>
+              <div class="text-sm text-gray-400">
+                <i class="fa fa-shield mr-1"></i> 集体主义
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 利索尔阵营 -->
+        <div class="bg-cyber-light rounded-lg overflow-hidden border border-cyber-accent relative">
+          <div class="absolute top-0 right-0 bg-neon-yellow text-cyber-dark text-xs font-bold px-3 py-1">
+            独立势力
+          </div>
+          
+          <div class="h-48 bg-cyber-dark flex items-center justify-center">
+            <img src="https://picsum.photos/id/160/800/400" alt="利索尔阵营" class="w-full h-full object-cover">
+          </div>
+          
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-2xl font-bold">利索尔 - 自由堡垒</h3>
+              <div class="flex items-center">
+                <span class="text-neon-yellow font-cyber mr-2">250M+</span>
+                <span class="text-sm text-gray-400">人口</span>
+              </div>
+            </div>
+            
+            <p class="mb-6">
+              利索尔的自由堡垒藏在落基山脉深处，他们把"灵能晶核强化药剂"锁在实验室里，只给亲附自己的国家分一杯羹。用"公民身份"诱捕他国觉醒者，实行精英统治。
+            </p>
+            
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="text-center">
+                <div class="text-neon-pink font-cyber text-xl font-bold">8K</div>
+                <div class="text-sm">觉醒者</div>
+              </div>
+              <div class="text-center">
+                <div class="text-neon-blue font-cyber text-xl font-bold">3</div>
+                <div class="text-sm">特级据点</div>
+              </div>
+              <div class="text-center">
+                <div class="text-neon-green font-cyber text-xl font-bold">92%</div>
+                <div class="text-sm">防御率</div>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 bg-neon-pink rounded-full mr-2"></span>
+                <span class="text-sm">敌对</span>
+              </div>
+              <div class="text-sm text-gray-400">
+                <i class="fa fa-gem mr-1"></i> 精英主义
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 里世界阵营 -->
+        <div class="bg-cyber-light rounded-lg overflow-hidden border border-cyber-accent relative md:col-span-2">
+          <div class="absolute top-0 right-0 bg-neon-purple text-white text-xs font-bold px-3 py-1">
+            秘密组织
+          </div>
+          
+          <div class="h-48 bg-cyber-dark flex items-center justify-center">
+            <img src="https://picsum.photos/id/111/1600/400" alt="里世界阵营" class="w-full h-full object-cover">
+          </div>
+          
+          <div class="p-6">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+              <h3 class="text-2xl font-bold mb-4 md:mb-0">里世界 - 七宗长</h3>
+              <div class="flex flex-wrap gap-4">
+                <div class="flex items-center">
+                  <span class="text-neon-purple font-cyber mr-2">7</span>
+                  <span class="text-sm text-gray-400">领袖</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-neon-purple font-cyber mr-2">???</span>
+                  <span class="text-sm text-gray-400">成员</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-neon-purple font-cyber mr-2">100+</span>
+                  <span class="text-sm text-gray-400">据点</span>
+                </div>
+              </div>
+            </div>
+            
+            <p class="mb-6">
+              在表世界之外，七个性格不同的疯子天才通过网络认识，又以网络为媒介创立了"里世界"。这是一个给无乡之人的庇护所，也是在秩序之外的伸张正义之处。而这七个人，也被称为里世界的七宗长。里世界拥有雇佣兵、赏金猎人、杀手和黑诊所，是一个游离于各大势力之外的独立组织。
+            </p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="text-center">
+                <i class="fa fa-users text-neon-pink text-2xl mb-2"></i>
+                <div class="text-sm">雇佣兵军团</div>
+              </div>
+              <div class="text-center">
+                <i class="fa fa-crosshairs text-neon-blue text-2xl mb-2"></i>
+                <div class="text-sm">赏金猎人公会</div>
+              </div>
+              <div class="text-center">
+                <i class="fa fa-stethoscope text-neon-green text-2xl mb-2"></i>
+                <div class="text-sm">暗影医疗站</div>
+              </div>
+              <div class="text-center">
+                <i class="fa fa-database text-neon-yellow text-2xl mb-2"></i>
+                <div class="text-sm">情报网络</div>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 bg-neon-purple rounded-full mr-2"></span>
+                <span class="text-sm">中立</span>
+              </div>
+              <div class="text-sm text-gray-400">
+                <i class="fa fa-balance-scale mr-1"></i> 无序正义
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 艺术画廊部分 -->
+  <section id="gallery" class="py-20 bg-cyber-dark">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl md:text-5xl font-cyber font-bold mb-12 text-center">
+        <span class="text-neon-yellow">#</span> 艺术画廊
+      </h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 画廊项目 1 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/119/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">钢铁长城防御战</h3>
+              <p class="text-sm">觉醒者部队对抗岩甲兽入侵</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 画廊项目 2 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/133/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">里世界秘密据点</h3>
+              <p class="text-sm">七宗长召开会议的隐秘场所</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 画廊项目 3 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/169/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">觉醒者测试中心</h3>
+              <p class="text-sm">测定能力等级的高科技设施</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 画廊项目 4 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/175/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">天穹城磁悬浮堡垒</h3>
+              <p class="text-sm">人类最后的空中避难所</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 画廊项目 5 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/183/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">蚀骨虫潮</h3>
+              <p class="text-sm">席卷城市的地心生物大军</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 画廊项目 6 -->
+        <div class="group relative overflow-hidden rounded-lg">
+          <img src="https://picsum.photos/id/193/800/600" alt="艺术作品" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-cyber-darker via-cyber-darker/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2">七宗长集结</h3>
+              <p class="text-sm">里世界七位领袖首次公开亮相</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-cyber-darker py-12 border-t border-cyber-accent">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+        <div class="mb-6 md:mb-0">
+          <div class="flex items-center space-x-2 mb-2">
+            <span class="text-neon-pink font-cyber text-2xl font-bold">月狮</span>
+            <span class="h-5 w-px bg-neon-blue"></span>
+            <span class="text-sm tracking-widest">CYBER CHRONICLES</span>
+          </div>
+          <p class="text-gray-400">© 2077 月狮项目. 保留所有权利.</p>
+        </div>
+        
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-neon-pink transition-colors duration-300">
+            <i class="fa fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-neon-blue transition-colors duration-300">
+            <i class="fa fa-instagram text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-neon-green transition-colors duration-300">
+            <i class="fa fa-discord text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-neon-yellow transition-colors duration-300">
+            <i class="fa fa-youtube-play text-xl"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="border-t border-cyber-accent pt-8 flex flex-col md:flex-row justify-between items-center">
+        <div class="text-gray-500 text-sm mb-4 md:mb-0">
+          本网站仅为OC群像创作展示，所有内容均为虚构
+        </div>
+        <div class="flex space-x-6 text-sm text-gray-500">
+          <a href="#" class="hover:text-white transition-colors duration-300">隐私政策</a>
+          <a href="#" class="hover:text-white transition-colors duration-300">使用条款</a>
+          <a href="#" class="hover:text-white transition-colors duration-300">联系我们</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航菜单切换
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 滚动时导航栏变化
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('py-2', 'shadow-lg');
+        navbar.classList.remove('py-3');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow-lg');
+      }
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 关闭移动菜单
+          document.getElementById('mobile-menu').classList.add('hidden');
+        }
+      });
+    });
+    
+    // 觉醒者体系图表
+    const ctx = document.getElementById('awakenerChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['D级', 'C级', 'B级', 'A级', 'S级', '特殊系'],
+        datasets: [{
+          label: '觉醒者数量',
+          data: [15000, 8000, 3000, 1200, 500, 7],
+          backgroundColor: [
+            'rgba(42, 149, 255, 0.4)',
+            'rgba(42, 149, 255, 0.5)',
+            'rgba(42, 149, 255, 0.6)',
+            'rgba(42, 149, 255, 0.7)',
+            'rgba(42, 149, 255, 0.8)',
+            'rgba(255, 42, 149, 0.8)'
+          ],
+          borderColor: [
+            'rgba(42, 149, 255, 1)',
+            'rgba(42, 149, 255, 1)',
+            'rgba(42, 149, 255, 1)',
+            'rgba(42, 149, 255, 1)',
+            'rgba(42, 149, 255, 1)',
+            'rgba(255, 42, 149, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // 添加元素进入视口时的动画
+    const observerOptions = {
+      threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+    
+    document.querySelectorAll('section > div > div').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
